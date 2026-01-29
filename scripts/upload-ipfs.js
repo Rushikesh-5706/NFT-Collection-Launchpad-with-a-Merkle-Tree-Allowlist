@@ -50,7 +50,14 @@ async function main() {
         const imageCid = "QmPlaceholderImageHash";
         console.log(`✅ Image uploaded (simulated): ipfs://${imageCid}`);
 
-        // 2. Upload Metadata
+        // 2. Validate & Upload Metadata
+        const validateMetadata = (meta) => {
+            if (!meta.name || typeof meta.name !== 'string') throw new Error("Invalid name");
+            if (!meta.description || typeof meta.description !== 'string') throw new Error("Invalid description");
+            if (!meta.image || !meta.image.startsWith("ipfs://")) throw new Error("Invalid image URI");
+            return true;
+        };
+
         const metadata = {
             name: "Genesis Legend #1",
             description: "A hardened NFT from the Genesis Collection.",
@@ -59,6 +66,9 @@ async function main() {
                 { trait_type: "Rarity", value: "Legendary" }
             ]
         };
+
+        console.log("🔍 Validating metadata schema...");
+        validateMetadata(metadata);
 
         const metadataCid = await uploadWithRetry(metadata, "metadata.json");
         console.log(`✅ Metadata uploaded: ipfs://${metadataCid}`);

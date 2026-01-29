@@ -23,7 +23,13 @@ COPY scripts ./scripts
 COPY test ./test
 # Expose hardhat node port
 EXPOSE 8545
-CMD ["npx", "hardhat", "node", "--hostname", "0.0.0.0"]
+
+# Copy entrypoint script
+COPY scripts/entrypoint.sh ./scripts/entrypoint.sh
+RUN chmod +x ./scripts/entrypoint.sh
+
+# Use entrypoint to start node and deploy
+CMD ["/bin/sh", "./scripts/entrypoint.sh"]
 
 # Frontend Setup
 FROM base AS frontend

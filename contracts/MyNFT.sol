@@ -122,8 +122,15 @@ contract MyNFT is ERC721, Ownable, ERC2981 {
         merkleRoot = newMerkleRoot;
     }
 
-    function setSaleState(SaleState newState) external onlyOwner {
-        saleState = newState;
+    // Strict Requirement #8: unpause(SaleState targetState)
+    function unpause(SaleState targetState) external onlyOwner {
+        if (targetState == SaleState.Paused) revert("Use pause() instead");
+        saleState = targetState;
+    }
+
+    // Strict Requirement #8: pause()
+    function pause() external onlyOwner {
+        saleState = SaleState.Paused;
     }
 
     function reveal() external onlyOwner {

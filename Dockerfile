@@ -8,6 +8,8 @@ WORKDIR /app
 COPY package.json package-lock.json* ./
 # Install only dev dependencies needed for hardhat if they are in devDeps, or all
 RUN npm install
+# Install curl for healthcheck
+RUN apk add --no-cache curl
 COPY hardhat.config.js .
 COPY contracts ./contracts
 COPY scripts ./scripts

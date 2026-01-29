@@ -40,7 +40,7 @@ describe("MyNFT", function () {
 
     describe("Allowlist Minting", function () {
         it("Should allow minting for allowlisted users", async function () {
-            await myNFT.setSaleState(1); // Allowlist
+            await myNFT.unpause(1); // Allowlist
             await myNFT.setMerkleRoot(root);
 
             const leaf = keccak256(Buffer.from(addr1.address.replace("0x", ""), "hex"));
@@ -51,7 +51,7 @@ describe("MyNFT", function () {
         });
 
         it("Should fail for non-allowlisted users", async function () {
-            await myNFT.setSaleState(1); // Allowlist
+            await myNFT.unpause(1); // Allowlist
             await myNFT.setMerkleRoot(root);
 
             const leaf = keccak256(Buffer.from(addr2.address.replace("0x", ""), "hex"));
@@ -65,7 +65,7 @@ describe("MyNFT", function () {
 
     describe("Public Minting", function () {
         it("Should allow public minting when active", async function () {
-            await myNFT.setSaleState(2); // Public
+            await myNFT.unpause(2); // Public
 
             await myNFT.connect(addr2).publicMint(1, { value: hre.ethers.parseEther("0.01") });
             expect(await myNFT.balanceOf(addr2.address)).to.equal(1);

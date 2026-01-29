@@ -35,9 +35,12 @@ export default function Home() {
     query: { refetchInterval: 2000 }
   });
 
+  // Check if user is on allowlist
+  const isAllowlisted = address && allowlist.some(a => a.toLowerCase() === address.toLowerCase());
+
   // Calculate Merkle Proof
   useEffect(() => {
-    if (address && saleState === 1) { // 1 = Allowlist
+    if (address && saleState === 1 && isAllowlisted) { // 1 = Allowlist
       try {
         const leaves = allowlist.map((addr) => keccak256(Buffer.from(addr.replace("0x", ""), "hex")));
         const tree = new MerkleTree(leaves, keccak256, { sortPairs: true });
@@ -48,7 +51,7 @@ export default function Home() {
         console.error("Error generating proof", e);
       }
     }
-  }, [address, saleState]);
+  }, [address, saleState, isAllowlisted]);
 
   useEffect(() => setMounted(true), []);
 
@@ -79,6 +82,22 @@ export default function Home() {
   };
 
   const salesStatusLabel = ['Paused', 'Allowlist Only', 'Public Sale'][Number(saleState || 0)];
+
+  // Custom helper to determine button state text
+  const getButtonText = () => {
+    if (isPending || isConfirming) return 'Minting...';
+    if (!address) return 'Connect Wallet';
+    if (Number(saleState) === 0) return 'Sale Paused';
+    if (Number(saleState) === 1 && !isAllowlisted) return 'Not Allowlisted';
+    return 'Mint Now';
+  };
+
+  const isMintDisabled = !address ||
+    !saleState ||
+    isPending ||
+    isConfirming ||
+    (Number(saleState) === 0) ||
+    (Number(saleState) === 1 && !isAllowlisted);
 
   if (!mounted) return null;
 
@@ -159,15 +178,21 @@ export default function Home() {
               <button
                 data-testid="mint-button"
                 onClick={handleMint}
-                disabled={!address || !saleState || isPending || isConfirming || (Number(saleState) === 0)}
-                className="w-full py-4 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-xl font-bold text-lg hover:from-indigo-500 hover:to-purple-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg hover:shadow-indigo-500/25"
+                disabled={isMintDisabled}
+                className="w-full py-4 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-xl font-bold text-lg hover:from-indigo-500 hover:to-purple-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg hover:shadow-indigo-500/25 disabled:hover:shadow-none"
               >
-                {isPending || isConfirming ? 'Minting...' : 'Mint Now'}
+                {getButtonText()}
               </button>
 
               {hash && <div className="text-xs text-center text-green-400 mt-2 truncate">Tx: {hash}</div>}
               {isConfirmed && <div className="text-sm text-center text-green-400 font-bold">Mint Successful!</div>}
-              {mintError && <div className="text-xs text-center text-red-400 mt-2">{mintError.message.slice(0, 100)}...</div>}
+              {mintError && (
+                <div className="bg-red-500/10 border border-red-500/20 p-2 rounded-lg mt-2">
+                  <p className="text-xs text-center text-red-400 font-mono">
+                    {mintError.message.split('\n')[0].slice(0, 50)}...
+                  </p>
+                </div>
+              )}
             </div>
           </div>
 

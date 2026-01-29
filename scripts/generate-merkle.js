@@ -28,6 +28,17 @@ async function main() {
         const root = tree.getHexRoot();
 
         console.log("Merkle Root:", root);
+
+        // Generate proofs.json for frontend
+        const proofs = {};
+        allowlist.forEach(addr => {
+            const leaf = keccak256(Buffer.from(addr.replace("0x", ""), "hex"));
+            proofs[addr] = tree.getHexProof(leaf);
+        });
+
+        fs.writeFileSync('./frontend/proofs.json', JSON.stringify(proofs, null, 2));
+        console.log("✅ Proofs written to frontend/proofs.json");
+
     } catch (err) {
         console.error("Failed to generate Merkle Root:", err.message);
         process.exit(1);

@@ -9,7 +9,14 @@ COPY package.json package-lock.json* ./
 # Install only dev dependencies needed for hardhat if they are in devDeps, or all
 RUN npm install
 # Install curl for healthcheck
+# Install curl for healthcheck
 RUN apk add --no-cache curl
+
+# JSON-RPC Healthcheck script
+HEALTHCHECK --interval=10s --timeout=5s --start-period=30s --retries=5 \
+    CMD curl -X POST -H 'Content-Type: application/json' \
+    --data '{"jsonrpc":"2.0","method":"eth_blockNumber","params":[],"id":1}' \
+    http://localhost:8545 || exit 1
 COPY hardhat.config.js .
 COPY contracts ./contracts
 COPY scripts ./scripts

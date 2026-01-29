@@ -41,6 +41,7 @@ contract MyNFT is ERC721, Ownable, ERC2981, ReentrancyGuard {
     error InvalidMerkleProof();
     error TransferFailed();
     error InvalidQuantity();
+    error NoFundsToWithdraw();
 
     constructor(
         string memory _name,
@@ -146,10 +147,14 @@ contract MyNFT is ERC721, Ownable, ERC2981, ReentrancyGuard {
         isRevealed = true;
     }
 
+    function setRoyalty(address receiver, uint96 feeNumerator) external onlyOwner {
+        _setDefaultRoyalty(receiver, feeNumerator);
+    }
+
     function withdraw() external onlyOwner nonReentrant {
         uint256 balance = address(this).balance;
         
-        if (balance == 0) revert("No funds to withdraw"); // Explicit check
+        if (balance == 0) revert NoFundsToWithdraw(); // Explicit check
         
         (bool success, ) = payable(owner()).call{value: balance}("");
         if (!success) revert TransferFailed();

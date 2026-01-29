@@ -112,9 +112,101 @@ export default function Home() {
         <h1 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-pink-500 to-violet-500">
           Genesis Collection
         </h1>
-        <div data-testid="connect-wallet-button">
-          <ConnectButton />
-        </div>
+        <ConnectButton.Custom>
+          {({
+            account,
+            chain,
+            openAccountModal,
+            openChainModal,
+            openConnectModal,
+            mounted,
+          }) => {
+            const ready = mounted;
+            const connected = ready && account && chain;
+
+            return (
+              <div
+                {...(!ready && {
+                  'aria-hidden': true,
+                  'style': {
+                    opacity: 0,
+                    pointerEvents: 'none',
+                    userSelect: 'none',
+                  },
+                })}
+              >
+                {(() => {
+                  if (!connected) {
+                    return (
+                      <button
+                        data-testid="connect-wallet-button"
+                        onClick={openConnectModal}
+                        type="button"
+                        className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-xl transition-all"
+                      >
+                        Connect Wallet
+                      </button>
+                    );
+                  }
+
+                  if (chain.unsupported) {
+                    return (
+                      <button onClick={openChainModal} type="button" className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-xl">
+                        Wrong network
+                      </button>
+                    );
+                  }
+
+                  return (
+                    <div className="flex gap-3">
+                      <button
+                        onClick={openChainModal}
+                        style={{ display: 'flex', alignItems: 'center' }}
+                        type="button"
+                        className="bg-white/10 hover:bg-white/20 text-white font-bold py-2 px-4 rounded-xl"
+                      >
+                        {chain.hasIcon && (
+                          <div
+                            style={{
+                              background: chain.iconBackground,
+                              width: 12,
+                              height: 12,
+                              borderRadius: 999,
+                              overflow: 'hidden',
+                              marginRight: 4,
+                            }}
+                          >
+                            {chain.iconUrl && (
+                              <Image
+                                alt={chain.name ?? 'Chain icon'}
+                                src={chain.iconUrl}
+                                width={12}
+                                height={12}
+                              />
+                            )}
+                          </div>
+                        )}
+                        {chain.name}
+                      </button>
+
+                      <button
+                        data-testid="connected-address"
+                        onClick={openAccountModal}
+                        type="button"
+                        className="bg-white/10 hover:bg-white/20 text-white font-bold py-2 px-4 rounded-xl font-mono"
+                      >
+                        {account.displayName}
+                        {account.displayBalance
+                          ? ` (${account.displayBalance})`
+                          : ''}
+                      </button>
+                    </div>
+                  );
+                })()}
+              </div>
+            );
+          }}
+        </ConnectButton.Custom>
       </nav>
 
       {/* Hero Section */}
@@ -188,10 +280,10 @@ export default function Home() {
                 {getButtonText()}
               </button>
 
-              {hash && <div className="text-xs text-center text-green-400 mt-2 truncate">Tx: {hash}</div>}
-              {isConfirmed && <div className="text-sm text-center text-green-400 font-bold">Mint Successful!</div>}
+              {hash && <div data-testid="mint-pending" className="text-xs text-center text-yellow-400 mt-2 truncate">Tx Pending: {hash}</div>}
+              {isConfirmed && <div data-testid="mint-success" className="text-sm text-center text-green-400 font-bold">Mint Successful!</div>}
               {mintError && (
-                <div className="bg-red-500/10 border border-red-500/20 p-2 rounded-lg mt-2">
+                <div data-testid="mint-error" className="bg-red-500/10 border border-red-500/20 p-2 rounded-lg mt-2">
                   <p className="text-xs text-center text-red-400 font-mono">
                     {mintError.message.split('\n')[0].slice(0, 50)}...
                   </p>
@@ -199,12 +291,6 @@ export default function Home() {
               )}
             </div>
           </div>
-
-          {isConnected && (
-            <div data-testid="connected-address" className="text-xs text-center text-gray-500 mt-4 break-all bg-white/5 p-2 rounded-lg font-mono">
-              Connected: {address}
-            </div>
-          )}
         </div>
       </div>
     </main>

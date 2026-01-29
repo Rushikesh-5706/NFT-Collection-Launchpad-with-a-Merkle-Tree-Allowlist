@@ -11,15 +11,27 @@ async function main() {
         process.exit(1);
     }
 
-    const allowlist = JSON.parse(fs.readFileSync(allowlistPath, 'utf8'));
+    try {
+        const fileContent = fs.readFileSync(allowlistPath, 'utf8');
+        if (!fileContent.trim()) throw new Error("allowlist.json is empty");
 
-    // Hash addresses to get leaf nodes (Using Buffer to match abi.encodePacked)
-    const leaves = allowlist.map(addr => keccak256(Buffer.from(addr.replace("0x", ""), "hex")));
-    const tree = new MerkleTree(leaves, keccak256, { sortPairs: true });
+        const allowlist = JSON.parse(fileContent);
+        if (!Array.isArray(allowlist)) throw new Error("allowlist must be an array");
 
-    const root = tree.getHexRoot();
+        // Hash addresses to get leaf nodes (Using Buffer to match abi.encodePacked)
+        const leaves = allowlist.map(addr => {
+            if (!addr || !addr.startsWith('0x')) throw new Error(`Invalid address format: ${addr}`);
+            return keccak256(Buffer.from(addr.replace("0x", ""), "hex"));
+        });
 
-    console.log("Merkle Root:", root);
+        const tree = new MerkleTree(leaves, keccak256, { sortPairs: true });
+        const root = tree.getHexRoot();
+
+        console.log("Merkle Root:", root);
+    } catch (err) {
+        console.error("Failed to generate Merkle Root:", err.message);
+        process.exit(1);
+    }
 }
 
 main()

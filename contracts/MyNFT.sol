@@ -6,8 +6,9 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/common/ERC2981.sol";
 import "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
+import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 
-contract MyNFT is ERC721, Ownable, ERC2981 {
+contract MyNFT is ERC721, Ownable, ERC2981, ReentrancyGuard {
     using Strings for uint256;
 
     enum SaleState {
@@ -39,6 +40,7 @@ contract MyNFT is ERC721, Ownable, ERC2981 {
     error InsufficientPayment();
     error InvalidMerkleProof();
     error TransferFailed();
+    error InvalidQuantity();
 
     constructor(
         string memory _name,
@@ -52,8 +54,9 @@ contract MyNFT is ERC721, Ownable, ERC2981 {
 
     // --- Minting Functions ---
 
-    function allowlistMint(bytes32[] calldata merkleProof, uint256 quantity) external payable {
+    function allowlistMint(bytes32[] calldata merkleProof, uint256 quantity) external payable nonReentrant {
         if (saleState != SaleState.Allowlist) revert SaleNotActive();
+        if (quantity == 0) revert InvalidQuantity();
         if (totalSupply + quantity > MAX_SUPPLY) revert MaxSupplyExceeded();
         if (mintedPerWallet[msg.sender] + quantity > MAX_PER_WALLET) revert MaxPerWalletExceeded();
         if (msg.value != price * quantity) revert InsufficientPayment();
@@ -64,8 +67,9 @@ contract MyNFT is ERC721, Ownable, ERC2981 {
         _mintTokens(msg.sender, quantity);
     }
 
-    function publicMint(uint256 quantity) external payable {
+    function publicMint(uint256 quantity) external payable nonReentrant {
         if (saleState != SaleState.Public) revert SaleNotActive();
+        if (quantity == 0) revert InvalidQuantity();
         if (totalSupply + quantity > MAX_SUPPLY) revert MaxSupplyExceeded();
         // Note: MAX_PER_WALLET applies to total minted, including allowlist
         if (mintedPerWallet[msg.sender] + quantity > MAX_PER_WALLET) revert MaxPerWalletExceeded();
@@ -142,8 +146,11 @@ contract MyNFT is ERC721, Ownable, ERC2981 {
         isRevealed = true;
     }
 
-    function withdraw() external onlyOwner {
+    function withdraw() external onlyOwner nonReentrant {
         uint256 balance = address(this).balance;
+        
+        if (balance == 0) revert("No funds to withdraw"); // Explicit check
+        
         (bool success, ) = payable(owner()).call{value: balance}("");
         if (!success) revert TransferFailed();
     }

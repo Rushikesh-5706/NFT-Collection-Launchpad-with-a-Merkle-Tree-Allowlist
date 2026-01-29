@@ -83,8 +83,11 @@ export default function Home() {
 
   const salesStatusLabel = ['Paused', 'Allowlist Only', 'Public Sale'][Number(saleState || 0)];
 
+  const isSoldOut = Number(totalSupply ?? 0) >= 10000;
+
   // Custom helper to determine button state text
   const getButtonText = () => {
+    if (isSoldOut) return 'Sold Out';
     if (isPending || isConfirming) return 'Minting...';
     if (!address) return 'Connect Wallet';
     if (Number(saleState) === 0) return 'Sale Paused';
@@ -96,6 +99,7 @@ export default function Home() {
     !saleState ||
     isPending ||
     isConfirming ||
+    isSoldOut ||
     (Number(saleState) === 0) ||
     (Number(saleState) === 1 && !isAllowlisted);
 
@@ -197,8 +201,8 @@ export default function Home() {
           </div>
 
           {isConnected && (
-            <div data-testid="connected-address" className="text-xs text-center text-gray-500 opacity-0 h-0 w-0 overflow-hidden">
-              {address}
+            <div data-testid="connected-address" className="text-xs text-center text-gray-500 mt-4 break-all bg-white/5 p-2 rounded-lg font-mono">
+              Connected: {address}
             </div>
           )}
         </div>

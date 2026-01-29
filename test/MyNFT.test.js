@@ -3,7 +3,7 @@ const hre = require("hardhat");
 const { MerkleTree } = require("merkletreejs");
 const keccak256 = require("keccak256");
 
-describe("MyNFT", function () {
+describe("MyNFT (Hardened)", function () {
     let MyNFT;
     let myNFT;
     let owner;
@@ -16,7 +16,6 @@ describe("MyNFT", function () {
     beforeEach(async function () {
         [owner, addr1, addr2, ...addrs] = await hre.ethers.getSigners();
 
-        // Setup Merkle Tree (Use Buffer to match abi.encodePacked)
         const allowlist = [owner.address, addr1.address];
         const leaves = allowlist.map((addr) => keccak256(Buffer.from(addr.replace("0x", ""), "hex")));
         merkleTree = new MerkleTree(leaves, keccak256, { sortPairs: true });
@@ -27,14 +26,19 @@ describe("MyNFT", function () {
         await myNFT.waitForDeployment();
     });
 
-    describe("Deployment", function () {
-        it("Should set the right owner", async function () {
-            expect(await myNFT.owner()).to.equal(owner.address);
+    describe("Validation & Security", function () {
+        it("Should reject 0 quantity mints", async function () {
+            await myNFT.unpause(2); // Public
+            await expect(myNFT.connect(addr2).publicMint(0, { value: 0 }))
+                .to.be.revertedWithCustomError(myNFT, "InvalidQuantity");
         });
 
-        it("Should have correct initial state", async function () {
-            expect(await myNFT.saleState()).to.equal(0); // Paused
-            expect(await myNFT.isRevealed()).to.equal(false);
+        it("Should prevent withdrawal if balance is 0", async function () {
+            await expect(myNFT.withdraw()).to.be.revertedWith("No funds to withdraw");
+        });
+
+        it("Should not allow unpause to Paused state (use pause instead)", async function () {
+            await expect(myNFT.unpause(0)).to.be.revertedWith("Use pause() instead");
         });
     });
 

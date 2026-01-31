@@ -33,6 +33,16 @@ contract MyNFT is ERC721, Ownable, ERC2981, ReentrancyGuard {
 
     mapping(address => uint256) public mintedPerWallet;
 
+    // Events
+    event SaleStateChanged(SaleState newState);
+    event MerkleRootChanged(bytes32 newRoot);
+    event BaseURIChanged(string newBaseURI);
+    event RevealedURIChanged(string newRevealedURI);
+    event PriceChanged(uint256 newPrice);
+    event RoyaltyChanged(address receiver, uint96 feeNumerator);
+    event Revealed(bool isRevealed);
+    event FundsWithdrawn(address to, uint256 amount);
+
     // Custom Errors
     error SaleNotActive();
     error MaxSupplyExceeded();
@@ -42,6 +52,8 @@ contract MyNFT is ERC721, Ownable, ERC2981, ReentrancyGuard {
     error TransferFailed();
     error InvalidQuantity();
     error NoFundsToWithdraw();
+    error CannotUnpauseToPaused();
+    error InvalidRoyalty();
 
     constructor(
         string memory _name,
@@ -113,28 +125,33 @@ contract MyNFT is ERC721, Ownable, ERC2981, ReentrancyGuard {
 
     function setPrice(uint256 newPrice) external onlyOwner {
         price = newPrice;
+        emit PriceChanged(newPrice);
     }
 
     function setBaseURI(string calldata newBaseURI) external onlyOwner {
         baseURI = newBaseURI;
+        emit BaseURIChanged(newBaseURI);
     }
 
     function setRevealedURI(string calldata newRevealedURI) external onlyOwner {
         revealedURI = newRevealedURI;
+        emit RevealedURIChanged(newRevealedURI);
     }
 
     function setMerkleRoot(bytes32 newMerkleRoot) external onlyOwner {
         merkleRoot = newMerkleRoot;
+        emit MerkleRootChanged(newMerkleRoot);
     }
 
     // Strict Requirement #3: setSaleState
     function setSaleState(SaleState newState) public onlyOwner {
         saleState = newState;
+        emit SaleStateChanged(newState);
     }
 
     // Strict Requirement #8: unpause(SaleState targetState)
     function unpause(SaleState targetState) external onlyOwner {
-        if (targetState == SaleState.Paused) revert("Use pause() instead");
+        if (targetState == SaleState.Paused) revert CannotUnpauseToPaused();
         setSaleState(targetState);
     }
 
@@ -145,10 +162,13 @@ contract MyNFT is ERC721, Ownable, ERC2981, ReentrancyGuard {
 
     function reveal() external onlyOwner {
         isRevealed = true;
+        emit Revealed(true);
     }
 
     function setRoyalty(address receiver, uint96 feeNumerator) external onlyOwner {
+        if (feeNumerator > 10000) revert InvalidRoyalty();
         _setDefaultRoyalty(receiver, feeNumerator);
+        emit RoyaltyChanged(receiver, feeNumerator);
     }
 
     function withdraw() external onlyOwner nonReentrant {
@@ -158,5 +178,7 @@ contract MyNFT is ERC721, Ownable, ERC2981, ReentrancyGuard {
         
         (bool success, ) = payable(owner()).call{value: balance}("");
         if (!success) revert TransferFailed();
+        
+        emit FundsWithdrawn(owner(), balance);
     }
 }

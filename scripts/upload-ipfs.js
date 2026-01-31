@@ -44,12 +44,6 @@ async function main() {
     try {
         console.log("🚀 Starting robust IPFS upload...");
 
-        // 1. Upload Image (Placeholder)
-        // In a real scenario, you'd read a file: fs.createReadStream('./image.png')
-        // Here we simulate checking/uploading
-        const imageCid = "QmPlaceholderImageHash";
-        console.log(`✅ Image uploaded (simulated): ipfs://${imageCid}`);
-
         // 2. Validate & Upload Metadata
         const validateMetadata = (meta) => {
             if (!meta.name || typeof meta.name !== 'string') throw new Error("Invalid name");
@@ -57,6 +51,39 @@ async function main() {
             if (!meta.image || !meta.image.startsWith("ipfs://")) throw new Error("Invalid image URI");
             return true;
         };
+
+        // Note: In a real CLI usage, we would read args for the image path.
+        // For this demonstration, we assume a local file 'assets/placeholder.png' or similar exists,
+        // Or we create a dummy file on the fly to prove the 'fs' logic works.
+
+        // Create a dummy image for genuine upload test if not exists
+        const dummyImagePath = './scripts/test_image.png';
+        if (!fs.existsSync(dummyImagePath)) {
+            // Ensure the directory exists
+            const dir = require('path').dirname(dummyImagePath);
+            if (!fs.existsSync(dir)) {
+                fs.mkdirSync(dir, { recursive: true });
+            }
+            fs.writeFileSync(dummyImagePath, "fake image content");
+        }
+
+        console.log("📤 Uploading image to IPFS...");
+        const imageFormData = new FormData();
+        imageFormData.append('file', fs.createReadStream(dummyImagePath), {
+            filepath: 'test_image.png'
+        });
+
+        const imageRes = await axios.post("https://api.pinata.cloud/pinning/pinFileToIPFS", imageFormData, {
+            maxBodyLength: "Infinity",
+            headers: {
+                ...imageFormData.getHeaders(),
+                'pinata_api_key': PINATA_API_KEY,
+                'pinata_secret_api_key': PINATA_SECRET_API_KEY
+            }
+        });
+
+        const imageCid = imageRes.data.IpfsHash;
+        console.log(`✅ Image uploaded: ipfs://${imageCid}`);
 
         const metadata = {
             name: "Genesis Legend #1",

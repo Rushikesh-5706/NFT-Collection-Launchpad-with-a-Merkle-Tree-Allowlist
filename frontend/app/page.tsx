@@ -190,12 +190,13 @@ export default function Home() {
                       </button>
 
                       <button
-                        data-testid="connected-address"
                         onClick={openAccountModal}
                         type="button"
-                        className="bg-white/10 hover:bg-white/20 text-white font-bold py-2 px-4 rounded-xl font-mono"
+                        className="bg-white/10 hover:bg-white/20 text-white font-bold py-2 px-4 rounded-xl font-mono flex gap-2"
                       >
-                        {account.displayName}
+                        <span data-testid="connected-address">
+                          {account.displayName}
+                        </span>
                         {account.displayBalance
                           ? ` (${account.displayBalance})`
                           : ''}

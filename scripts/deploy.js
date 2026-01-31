@@ -15,7 +15,12 @@ async function main() {
     await myNFT.waitForDeployment();
 
     const address = await myNFT.getAddress();
-    console.log("MyNFT deployed to:", address);
+    console.log("----------------------------------------------------");
+    console.log(`Contract Deployed to: ${address}`);
+    console.log("----------------------------------------------------");
+    console.log("To verify on Etherscan:");
+    console.log(`npx hardhat verify --network sepolia ${address} "TestNFT" "TNFT" "ipfs://initial/"`);
+    console.log("----------------------------------------------------");
 }
 
 main()

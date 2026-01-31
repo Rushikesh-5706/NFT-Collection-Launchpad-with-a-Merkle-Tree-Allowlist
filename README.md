@@ -133,8 +133,8 @@ Follow these steps to deploy your own instance to the Sepolia testnet.
     *Copy the deployed address output by the console.*
 
     > **✅ Verification Data (For Evaluator)**
-    > *   **Contract Address**: `[INSERT_YOUR_SEPOLIA_ADDRESS_HERE]`
-    > *   **Etherscan**: [View on Sepolia](https://sepolia.etherscan.io/)
+    > *   **Contract Address**: `0x2dbbDDadb90a897d059D63767FAc676DBB5c39Ca`
+    > *   **Etherscan**: [View on Sepolia](https://sepolia.etherscan.io/address/0x2dbbDDadb90a897d059D63767FAc676DBB5c39Ca)
 
 3.  **Verify Contract**:
     Verify source code on Etherscan for full transparency.

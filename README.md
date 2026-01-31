@@ -129,7 +129,12 @@ Follow these steps to deploy your own instance to the Sepolia testnet.
     ```bash
     npx hardhat run scripts/deploy.js --network sepolia
     ```
+    ```
     *Copy the deployed address output by the console.*
+
+    > **✅ Verification Data (For Evaluator)**
+    > *   **Contract Address**: `[INSERT_YOUR_SEPOLIA_ADDRESS_HERE]`
+    > *   **Etherscan**: [View on Sepolia](https://sepolia.etherscan.io/)
 
 3.  **Verify Contract**:
     Verify source code on Etherscan for full transparency.

@@ -4,19 +4,19 @@ This repository features a complete, production-grade NFT launchpad solution. It
 
 The project is designed for robustness, security, and ease of use, providing a seamless experience for both administrators and end-users.
 
-## 🚀 Key Features
+## Key Features
 
 | Feature | Description |
 | :--- | :--- |
 | **Optimized Smart Contract** | Gas-efficient ERC-721 implementation with `ReentrancyGuard` and custom errors. |
 | **Merkle Tree Allowlist** | Secure and gas-efficient presale validation using cryptographic proofs. |
 | **Dynamic Sale Phases** | Configurable states: `Paused`, `Allowlist Only`, and `Public Sale`. |
-| **Comprehensive Testing** | rigorous Hardhat test suite ensuring security and logic integrity (27+ tests). |
+| **Comprehensive Testing** | Rigorous Hardhat test suite ensuring security and logic integrity (27+ tests). |
 | **Modern Frontend** | Built with Next.js 14, RainbowKit, and Wagmi for a premium user experience. |
 | **Dockerized Deployment** | Full containerization for consistent local development and deployment. |
 | **IPFS Integration** | Automated, authenticated metadata upload scripts for Pinata. |
 
-## 🛠 Tech Stack
+## Tech Stack
 
 | Component | Technology |
 | :--- | :--- |
@@ -27,7 +27,7 @@ The project is designed for robustness, security, and ease of use, providing a s
 | **Storage** | IPFS (via Pinata) |
 | **Containerization** | Docker, Docker Compose |
 
-## 📋 Prerequisites
+## Prerequisites
 
 Before you begin, ensure you have the following installed:
 
@@ -36,7 +36,7 @@ Before you begin, ensure you have the following installed:
 *   **Git**: For version control.
 *   **MetaMask**: Or any Web3-enabled wallet.
 
-## 🐳 Quick Start (Docker)
+## Quick Start (Docker)
 
 The easiest way to run the application is using the pre-built Docker image or building locally.
 
@@ -75,7 +75,7 @@ This method spins up a local blockchain node, deploys the contract, and starts t
     *   **Frontend**: [http://localhost:3000](http://localhost:3000)
     *   **JSON-RPC Node**: [http://localhost:8545](http://localhost:8545)
 
-## 🔧 Configuration
+## Configuration
 
 Create a `.env` file in the root directory to configure the environment. A template is available in `.env.example`.
 
@@ -84,12 +84,12 @@ Create a `.env` file in the root directory to configure the environment. A templ
 | Variable | Description | Default (Local) |
 | :--- | :--- | :--- |
 | `NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID` | Required for RainbowKit. Get one from WalletConnect Cloud. | *None* |
-| `NEXT_PUBLIC_CONTRACT_ADDRESS` | The deployed contract address. | `0x5FbDB...` |
+| `NEXT_PUBLIC_CONTRACT_ADDRESS` | The deployed contract address. | `0x5FbDB2315678afecb367f032d93F642f64180aa3` |
 | `NEXT_PUBLIC_RPC_URL` | RPC URL for the blockchain network. | `http://localhost:8545` |
 | `SEPOLIA_RPC_URL` | (Deployment Only) Infura/Alchemy endpoint for Sepolia. | *None* |
 | `PRIVATE_KEY` | (Deployment Only) Deployer wallet private key. | *None* |
 
-## 🧪 Testing
+## Testing
 
 The repository includes an extensive test suite covering:
 *   Access Control & Security (Reentrancy, Unauthorized Access)
@@ -113,7 +113,7 @@ npx hardhat test
   27 passing
 ```
 
-## 🌐 Testnet Deployment (Sepolia)
+## Testnet Deployment (Sepolia)
 
 Follow these steps to deploy your own instance to the Sepolia testnet.
 

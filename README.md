@@ -129,20 +129,22 @@ Follow these steps to deploy your own instance to the Sepolia testnet.
     ```bash
     npx hardhat run scripts/deploy.js --network sepolia
     ```
-    ```
-    *Copy the deployed address output by the console.*
 
-    > **✅ Verification Data (For Evaluator)**
-    > *   **Contract Address**: `0x2dbbDDadb90a897d059D63767FAc676DBB5c39Ca`
-    > *   **Etherscan**: [View on Sepolia](https://sepolia.etherscan.io/address/0x2dbbDDadb90a897d059D63767FAc676DBB5c39Ca)
+3.  **Live Status (Verified)**:
+    
+    | Parameter | Value |
+    | :--- | :--- |
+    | **Network** | Sepolia Testnet |
+    | **Contract Address** | `0x2dbbDDadb90a897d059D63767FAc676DBB5c39Ca` |
+    | **Etherscan Verification** | [View Contract](https://sepolia.etherscan.io/address/0x2dbbDDadb90a897d059D63767FAc676DBB5c39Ca) |
 
-3.  **Verify Contract**:
+4.  **Verify Contract**:
     Verify source code on Etherscan for full transparency.
     ```bash
     npx hardhat verify --network sepolia <DEPLOYED_ADDRESS> "TestNFT" "TNFT" "ipfs://initial/"
     ```
 
-4.  **Update Frontend**:
+5.  **Update Frontend**:
     Set `NEXT_PUBLIC_CONTRACT_ADDRESS` in your `.env` to the new Sepolia address and restart the application.
 
 ## 📂 Repository Structure
